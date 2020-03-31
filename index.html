@@ -10,9 +10,10 @@
             .buttons {
                 font-size: 4em;
                 display: flex;
+                flex-wrap: wrap;
                 justify-content: center;
             }
-            .button, .value {
+            .button {
                 line-height: 1;
                 padding: 2rem;
                 margin: 2rem;
@@ -44,6 +45,7 @@
         </div>
         <script>
             var users = document.querySelector('.users');
+            var state = document.querySelector('.state');
             var websocket = new WebSocket("ws://127.0.0.1:6789/");
             var initialized = false;
             var VERSION = 1;
@@ -64,6 +66,7 @@
                     localKeyStates[i] = true;
                     keys[i].classList.add("local");
                     sendLocalKeyStates();
+                    return false;
                 }
             }
             function keyUpFn(i) {
@@ -71,10 +74,10 @@
                     localKeyStates[i] = false;
                     keys[i].classList.remove("local");
                     sendLocalKeyStates();
+                    return false;
                 }
             }
             document.addEventListener("keydown", function(ev) {
-                console.log(ev.key);
                 if (ev.key in keyboardIndexes) {
                     keyDownFn(keyboardIndexes[ev.key])();
                 }
@@ -85,7 +88,6 @@
                 }
             });
             function initKeys(keyNames) {
-                console.log(keyNames);
                 var buttons = document.querySelector('.buttons');
                 for (const name of keyNames) {
                     var key = document.createElement("div");
@@ -97,6 +99,8 @@
                     localKeyStates.push(false);
                     key.onmousedown = keyDownFn(i);
                     key.onmouseup = keyUpFn(i);
+                    key.ontouchstart = keyDownFn(i);
+                    key.ontouchend = keyUpFn(i);
                     if (name in keyMap) {
                         keyboardIndexes[keyMap[name]] = i;
                     } else {
@@ -106,9 +110,8 @@
                 initialized = true;
             }
             function updateKeys(keyValues) {
-                console.log(keyValues);
                 for (var i = 0; i < keys.length; i++) {
-                    if (keyValues[i]) {
+                    if (keyValues[i] > 0) {
                         keys[i].classList.add("remote");
                     } else {
                         keys[i].classList.remove("remote");
@@ -118,10 +121,8 @@
             websocket.onmessage = function (event) {
                 data = JSON.parse(event.data);
                 if (!initialized) {
-                    console.log("init", data, data.version, VERSION);
                     if (data.version != VERSION) {
-                        console.log("init", data, data.version, VERSION);
-                        alert("invalid version " + data.version + "; please refresh");
+                        state.textContent = "invalid version " + data.version + "; please refresh";
                         websocket.close();
                         return;
                     }
@@ -130,6 +131,9 @@
                     users.textContent = (data.u + " user(s)");
                     updateKeys(data.k);
                 }
+            };
+            websocket.onerror = websocket.onclose = function (ev) {
+                state.textContent = "connection closed";
             };
         </script>
     </body>

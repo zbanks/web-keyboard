@@ -7,10 +7,20 @@ import asyncio
 import json
 import logging
 import websockets
+import evdev
 
 logging.basicConfig()
 
 VERSION = 1
+
+KEY_CODES = {
+    "a": evdev.ecodes.KEY_A,
+    "b": evdev.ecodes.KEY_B,
+    "left": evdev.ecodes.KEY_LEFT,
+    "right": evdev.ecodes.KEY_RIGHT,
+    "up": evdev.ecodes.KEY_UP,
+    "down": evdev.ecodes.KEY_DOWN,
+}
 KEYS = ["a", "b", "left", "up", "down", "right"]
 
 WELCOME = {
@@ -18,9 +28,10 @@ WELCOME = {
     "keys": KEYS,
 }
 USERS = {}
+UINPUT = evdev.UInput()
 
 def key_states():
-    return [any(xs) for xs in zip(*USERS.values())]
+    return [sum(xs) for xs in zip([False for x in KEYS], *USERS.values())]
 
 def welcome_event():
     return json.dumps(WELCOME)
@@ -32,6 +43,11 @@ def state_event():
     })
 
 async def notify_state():
+    for k, v in zip(KEYS, key_states()):
+        code = KEY_CODES[k]
+        UINPUT.write(evdev.ecodes.EV_KEY, code, bool(v))
+    UINPUT.syn()
+
     if USERS:  # asyncio.wait doesn't accept an empty list
         message = state_event()
         print(message)
@@ -57,7 +73,7 @@ async def counter(websocket, path):
         await notify_state()
 
 
-start_server = websockets.serve(counter, "localhost", 6789)
+start_server = websockets.serve(counter, "0.0.0.0", 6789)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
