@@ -13,19 +13,20 @@ logging.basicConfig()
 
 VERSION = 1
 
-KEY_CODES = {
-    "a": evdev.ecodes.KEY_A,
-    "b": evdev.ecodes.KEY_B,
-    "left": evdev.ecodes.KEY_LEFT,
-    "right": evdev.ecodes.KEY_RIGHT,
-    "up": evdev.ecodes.KEY_UP,
-    "down": evdev.ecodes.KEY_DOWN,
-}
-KEYS = ["a", "b", "left", "up", "down", "right"]
+KEYS = [
+    ("a", evdev.ecodes.KEY_A),
+    ("b", evdev.ecodes.KEY_B),
+    ("left", evdev.ecodes.KEY_LEFT),
+    ("right", evdev.ecodes.KEY_RIGHT),
+    ("up", evdev.ecodes.KEY_UP),
+    ("down", evdev.ecodes.KEY_DOWN),
+    ("select", evdev.ecodes.KEY_C),
+    ("start", evdev.ecodes.KEY_D),
+]
 
 WELCOME = {
     "version": VERSION,
-    "keys": KEYS,
+    "keys": [n for n, c in KEYS]
 }
 USERS = {}
 UINPUT = evdev.UInput()
@@ -43,14 +44,12 @@ def state_event():
     })
 
 async def notify_state():
-    for k, v in zip(KEYS, key_states()):
-        code = KEY_CODES[k]
+    for (_name, code), v in zip(KEYS, key_states()):
         UINPUT.write(evdev.ecodes.EV_KEY, code, bool(v))
     UINPUT.syn()
 
     if USERS:  # asyncio.wait doesn't accept an empty list
         message = state_event()
-        print(message)
         await asyncio.wait([user.send(message) for user in USERS])
 
 async def counter(websocket, path):

@@ -25,6 +25,9 @@
                 cursor: pointer;
                 user-select: none;
             }
+            .button .shortcut {
+                font-size: 0.4em;
+            }
             .remote {
                 background-color: #CCC;
             }
@@ -57,8 +60,8 @@
         <script>
             var users = document.querySelector('.users');
             var state = document.querySelector('.state');
-            var hostname = "127.0.0.1";
-            //var hostname = "192.168.0.11";
+            //var hostname = "127.0.0.1";
+            var hostname = "nitro.local";
             var websocket = new WebSocket("ws://" + hostname + ":6789/");
             var initialized = false;
             var VERSION = 1;
@@ -67,6 +70,10 @@
                 "right": "ArrowRight",
                 "up": "ArrowUp",
                 "down": "ArrowDown",
+                "a": "z",
+                "b": "x",
+                "select": "q",
+                "start": "w",
             };
             var keys = [];
             var keyboardIndexes = {};
@@ -106,6 +113,9 @@
                     var key = document.createElement("div");
                     key.textContent = name;
                     key.classList.add("button");
+                    var label = document.createElement("div");
+                    label.classList.add("shortcut");
+                    key.appendChild(label);
                     buttons.appendChild(key);
                     var i = keys.length;
                     keys.push(key);
@@ -116,6 +126,7 @@
                     key.ontouchend = keyUpFn(i);
                     if (name in keyMap) {
                         keyboardIndexes[keyMap[name]] = i;
+                        label.textContent = "[" + keyMap[name] + "]";
                     } else {
                         keyboardIndexes[name] = i;
                     }
