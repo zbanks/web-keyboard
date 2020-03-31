@@ -45,6 +45,7 @@
                 justify-content: center;
             }
         </style>
+        <script src='https://meet.jit.si/external_api.js'></script>
     </head>
     <body>
         <div class="buttons">
@@ -58,10 +59,12 @@
         </div>
         -->
         <script>
+            const hostname = "127.0.0.1";
+            const jitsiRoom = "mywebjitsiroomname";
+
             var users = document.querySelector('.users');
             var state = document.querySelector('.state');
-            //var hostname = "127.0.0.1";
-            var hostname = "nitro.local";
+            //var hostname = "nitro.local";
             var websocket = new WebSocket("ws://" + hostname + ":6789/");
             var initialized = false;
             var VERSION = 1;
@@ -72,6 +75,8 @@
                 "down": "ArrowDown",
                 "a": "z",
                 "b": "x",
+                "l": "a",
+                "r": "s",
                 "select": "q",
                 "start": "w",
             };
@@ -159,6 +164,14 @@
             websocket.onerror = websocket.onclose = function (ev) {
                 state.textContent = "connection closed";
             };
+            var api = new JitsiMeetExternalAPI("meet.jit.si", {
+                roomName: jitsiRoom,
+                width: 640,
+                height: 480,
+                interfaceConfigOverwrite: {
+                    MOBILE_APP_PROMO: false,
+                }
+            });
         </script>
     </body>
 </html>

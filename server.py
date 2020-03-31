@@ -16,12 +16,14 @@ VERSION = 1
 KEYS = [
     ("a", evdev.ecodes.KEY_A),
     ("b", evdev.ecodes.KEY_B),
+    #("l", evdev.ecodes.KEY_C),
+    #("r", evdev.ecodes.KEY_D),
     ("left", evdev.ecodes.KEY_LEFT),
     ("right", evdev.ecodes.KEY_RIGHT),
     ("up", evdev.ecodes.KEY_UP),
     ("down", evdev.ecodes.KEY_DOWN),
-    ("select", evdev.ecodes.KEY_C),
-    ("start", evdev.ecodes.KEY_D),
+    ("select", evdev.ecodes.KEY_E),
+    ("start", evdev.ecodes.KEY_F),
 ]
 
 WELCOME = {
