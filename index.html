@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Web Keyboard</title>
+        <style type="text/css">
+            body {
+                font-family: "Courier New", sans-serif;
+                text-align: center;
+            }
+            .buttons {
+                font-size: 4em;
+                display: flex;
+                justify-content: center;
+            }
+            .button, .value {
+                line-height: 1;
+                padding: 2rem;
+                margin: 2rem;
+                border: medium solid;
+                min-height: 1em;
+                min-width: 1em;
+            }
+            .button {
+                cursor: pointer;
+                user-select: none;
+            }
+            .remote {
+                background-color: #CCC;
+            }
+            .local {
+                color: blue;
+                border-color: blue;
+            }
+            .state {
+                font-size: 2em;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="buttons">
+        </div>
+        <div class="state">
+            <span class="users">?</span> online
+        </div>
+        <script>
+            var users = document.querySelector('.users');
+            var websocket = new WebSocket("ws://127.0.0.1:6789/");
+            var initialized = false;
+            var VERSION = 1;
+            var keys = [];
+            var localKeyStates = [];
+            function sendLocalKeyStates() {
+                websocket.send(JSON.stringify(localKeyStates));
+            }
+            function initKeys(keyNames) {
+                console.log(keyNames);
+                var buttons = document.querySelector('.buttons');
+                for (const name of keyNames) {
+                    var key = document.createElement("div");
+                    key.textContent = name;
+                    key.classList.add("button");
+                    buttons.appendChild(key);
+                    var i = keys.length;
+                    keys.push(key);
+                    localKeyStates.push(false);
+                    (function(_i) {
+                        key.onmousedown = function (event) {
+                            localKeyStates[_i] = true;
+                            keys[_i].classList.add("local");
+                            sendLocalKeyStates();
+                        }
+                        key.onmouseup = function (event) {
+                            localKeyStates[_i] = false;
+                            keys[_i].classList.remove("local");
+                            sendLocalKeyStates();
+                        }
+                    })(i);
+                }
+                initialized = true;
+            }
+            function updateKeys(keyValues) {
+                console.log(keyValues);
+                for (var i = 0; i < keys.length; i++) {
+                    if (keyValues[i]) {
+                        keys[i].classList.add("remote");
+                    } else {
+                        keys[i].classList.remove("remote");
+                    }
+                }
+            }
+            websocket.onmessage = function (event) {
+                data = JSON.parse(event.data);
+                if (!initialized) {
+                    console.log("init", data, data.version, VERSION);
+                    if (data.version != VERSION) {
+                        console.log("init", data, data.version, VERSION);
+                        alert("invalid version " + data.version + "; please refresh");
+                        websocket.close();
+                        return;
+                    }
+                    initKeys(data.keys);
+                } else {
+                    users.textContent = (data.u + " user(s)");
+                    updateKeys(data.k);
+                }
+            };
+        </script>
+    </body>
+</html>
