@@ -47,11 +47,43 @@
             var websocket = new WebSocket("ws://127.0.0.1:6789/");
             var initialized = false;
             var VERSION = 1;
+            var keyMap = {
+                "left": "ArrowLeft",
+                "right": "ArrowRight",
+                "up": "ArrowUp",
+                "down": "ArrowDown",
+            };
             var keys = [];
+            var keyboardIndexes = {};
             var localKeyStates = [];
             function sendLocalKeyStates() {
                 websocket.send(JSON.stringify(localKeyStates));
             }
+            function keyDownFn(i) {
+                return function(ev) {
+                    localKeyStates[i] = true;
+                    keys[i].classList.add("local");
+                    sendLocalKeyStates();
+                }
+            }
+            function keyUpFn(i) {
+                return function(ev) {
+                    localKeyStates[i] = false;
+                    keys[i].classList.remove("local");
+                    sendLocalKeyStates();
+                }
+            }
+            document.addEventListener("keydown", function(ev) {
+                console.log(ev.key);
+                if (ev.key in keyboardIndexes) {
+                    keyDownFn(keyboardIndexes[ev.key])();
+                }
+            });
+            document.addEventListener("keyup", function(ev) {
+                if (ev.key in keyboardIndexes) {
+                    keyUpFn(keyboardIndexes[ev.key])();
+                }
+            });
             function initKeys(keyNames) {
                 console.log(keyNames);
                 var buttons = document.querySelector('.buttons');
@@ -63,18 +95,13 @@
                     var i = keys.length;
                     keys.push(key);
                     localKeyStates.push(false);
-                    (function(_i) {
-                        key.onmousedown = function (event) {
-                            localKeyStates[_i] = true;
-                            keys[_i].classList.add("local");
-                            sendLocalKeyStates();
-                        }
-                        key.onmouseup = function (event) {
-                            localKeyStates[_i] = false;
-                            keys[_i].classList.remove("local");
-                            sendLocalKeyStates();
-                        }
-                    })(i);
+                    key.onmousedown = keyDownFn(i);
+                    key.onmouseup = keyUpFn(i);
+                    if (name in keyMap) {
+                        keyboardIndexes[keyMap[name]] = i;
+                    } else {
+                        keyboardIndexes[name] = i;
+                    }
                 }
                 initialized = true;
             }
