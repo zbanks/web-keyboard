@@ -22,8 +22,9 @@ KEYS = [
     ("right", evdev.ecodes.KEY_RIGHT),
     ("up", evdev.ecodes.KEY_UP),
     ("down", evdev.ecodes.KEY_DOWN),
-    ("select", evdev.ecodes.KEY_E),
-    ("start", evdev.ecodes.KEY_F),
+    ("start", evdev.ecodes.KEY_E),
+    ("select", evdev.ecodes.KEY_F),
+    ("turbo", evdev.ecodes.KEY_G),
 ]
 
 WELCOME = {
