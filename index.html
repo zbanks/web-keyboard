@@ -63,14 +63,6 @@
                 border: none;
             }
         </style>
-        <!--
-        <script>
-            Object.defineProperty(window.navigator, 'userAgent', {
-            get: function () { return 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/80.0.3987.163 Chrome/80.0.3987.163 Safari/537.36'; }
-            });
-        </script>
-        <script src='https://meet.jit.si/external_api.js'></script>
-        -->
     </head>
     <body>
         <div class="video">
@@ -101,7 +93,6 @@
         <script>
             //const hostname = "127.0.0.1";
             const hostname = "zbanks.mynetgear.com";
-            const jitsiRoom = "zbankwebkeyboard";
 
             var users = document.querySelector('.users');
             var state = document.querySelector('.state');
@@ -210,41 +201,6 @@
             websocket.onerror = websocket.onclose = function (ev) {
                 state.textContent = "connection closed";
             };
-/*
-            var api = new JitsiMeetExternalAPI("meet.jit.si", {
-                roomName: jitsiRoom,
-                width: 680,
-                height: 480,
-                disableDeepLinking: true,
-                configOverwrite: {
-                    disableDeepLinking: true,
-                    startAudioMuted: 1,
-                    startVideoMuted: 1,
-                    startWithVideoMuted: true,
-                    prejoinPageEnabled: false,
-                },
-                interfaceConfigOverwrite: {
-                    MOBILE_APP_PROMO: false,
-                    AUTO_PIN_LATEST_SCREEN_SHARE: true,
-                    startAudioOnly: true,
-                    TOOLBAR_BUTTONS: [
-                        "microphone",
-                        //"fodeviceselection",
-                        //"hangup",
-                        "profile",
-                        //"sharedvideo",
-                        "settings",
-                        "videoquality",
-                        //"stats",
-                        "shortctus",
-                        "help",
-                        //"mute-everyone",
-                    ],
-                }
-            });
-            api.executeCommand("toggleTileView");
-            api.executeCommand("toggleFilmStrip");
-*/
         </script>
     </body>
 </html>
